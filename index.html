@@ -9,78 +9,76 @@
 <link rel="manifest" href="manifest.webmanifest">
 <title>AP FUTSAL</title>
 <style> 
-
-/* AP FUTSAL: marcador horizontal en móvil vertical */
+/* AP FUTSAL: marcador en dos filas solo en móvil vertical */
 @media screen and (max-width: 760px) and (orientation: portrait) {
-  header.app-header {
-    padding: 8px;
-  }
-
   header.app-header .scoreboard {
     display: grid !important;
+    grid-template-areas:
+      "clock clock"
+      "home away" !important;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
     grid-template-rows: auto auto !important;
-    gap: 8px;
-    width: 100%;
-    max-width: 100%;
-    align-items: start;
+    gap: 8px !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    max-width: none !important;
   }
 
   header.app-header .scoreboard > .clock-wrap {
-    grid-column: 1 / -1 !important;
-    grid-row: 1 !important;
-    width: 100%;
-    min-width: 0;
-    padding: 4px 0;
+    grid-area: clock !important;
+    width: 100% !important;
+    min-width: 0 !important;
   }
 
-  header.app-header .scoreboard > .team-score,
+  header.app-header .scoreboard > .team-score:not(.right) {
+    grid-area: home !important;
+    min-width: 0 !important;
+  }
+
   header.app-header .scoreboard > .team-score.right {
-    grid-row: 2 !important;
-    grid-column: auto !important;
-    display: flex;
+    grid-area: away !important;
+    min-width: 0 !important;
     flex-direction: row !important;
-    justify-content: space-between;
-    align-items: center;
-    min-width: 0;
-    width: 100%;
-    padding: 8px 5px;
-    gap: 5px;
+  }
+
+  header.app-header .team-score {
+    padding: 6px 4px !important;
+    gap: 4px !important;
+    justify-content: space-between !important;
   }
 
   header.app-header .team-label {
-    font-size: 9px;
-    letter-spacing: 0;
+    font-size: 9px !important;
+    letter-spacing: 0 !important;
     overflow-wrap: anywhere;
-    text-align: left !important;
   }
 
   header.app-header .score {
-    font-size: clamp(28px, 8vw, 40px);
+    font-size: clamp(26px, 7vw, 36px) !important;
   }
 
   header.app-header .score-buttons {
     flex-shrink: 0;
-    gap: 4px;
+    gap: 4px !important;
   }
 
   header.app-header .score-buttons button {
-    min-width: 28px;
-    padding: 4px 6px;
+    min-width: 27px !important;
+    padding: 4px 6px !important;
   }
 
   header.app-header .fouls {
     flex-wrap: wrap;
-    gap: 2px;
+    gap: 2px !important;
   }
 
   header.app-header .fouls button {
-    min-width: 22px;
-    padding: 2px 4px;
+    min-width: 21px !important;
+    padding: 2px 4px !important;
   }
 
   header.app-header .clock {
-    font-size: clamp(36px, 10vw, 48px);
+    font-size: clamp(34px, 10vw, 46px) !important;
   }
 
   header.app-header .clock-actions {
