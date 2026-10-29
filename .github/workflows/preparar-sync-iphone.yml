@@ -9,6 +9,11 @@ on:
     paths:
       - '.github/workflows/preparar-sync-iphone.yml'
       - 'cloud-sync.js'
+      - 'index.html'
+      - 'sw.js'
+
+permissions:
+  contents: read
 
 jobs:
   preparar:
@@ -21,6 +26,9 @@ jobs:
         run: |
           test -f index.html
           test -f cloud-sync.js
+          test -f sw.js
+          test -f manifest.webmanifest
+          test -d icons
           echo "Archivos encontrados correctamente."
 
       - name: Comprobar configuracion de Supabase
@@ -37,3 +45,40 @@ jobs:
             exit 1
           }
           echo "Los dos secretos existen."
+
+      - name: Preparar copia de prueba con la configuracion
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          mkdir -p dist
+          cp index.html cloud-sync.js sw.js manifest.webmanifest dist/
+          cp -R icons dist/icons
+
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+
+          path = Path("dist/cloud-sync.js")
+          content = path.read_text(encoding="utf-8")
+          content = content.replace("__SUPABASE_URL__", os.environ["SUPABASE_URL"])
+          content = content.replace("__SUPABASE_PUBLISHABLE_KEY__", os.environ["SUPABASE_PUBLISHABLE_KEY"])
+
+          if "__SUPABASE_URL__" in content or "__SUPABASE_PUBLISHABLE_KEY__" in content:
+              raise SystemExit("Error: quedan marcadores de configuracion sin sustituir.")
+
+          path.write_text(content, encoding="utf-8")
+          print("Configuracion aplicada solo a la copia de prueba.")
+          PY
+
+          test -s dist/cloud-sync.js
+          ! grep -q "__SUPABASE_URL__\|__SUPABASE_PUBLISHABLE_KEY__" dist/cloud-sync.js
+          echo "Copia de prueba preparada correctamente."
+
+      - name: Guardar paquete preparado como artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: ap-futsal-iphone-sync-prep
+          path: dist/
+          if-no-files-found: error
+          retention-days: 7
