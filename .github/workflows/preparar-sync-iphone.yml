@@ -1,0 +1,39 @@
+
+name: Preparar sincronizacion AP FUTSAL iPhone
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - sync-prep
+    paths:
+      - '.github/workflows/preparar-sync-iphone.yml'
+      - 'cloud-sync.js'
+
+jobs:
+  preparar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar codigo de pruebas
+        uses: actions/checkout@v4
+
+      - name: Comprobar archivos necesarios
+        run: |
+          test -f index.html
+          test -f cloud-sync.js
+          echo "Archivos encontrados correctamente."
+
+      - name: Comprobar configuracion de Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          test -n "$SUPABASE_URL" || {
+            echo "Falta el secreto SUPABASE_URL"
+            exit 1
+          }
+          test -n "$SUPABASE_PUBLISHABLE_KEY" || {
+            echo "Falta el secreto SUPABASE_PUBLISHABLE_KEY"
+            exit 1
+          }
+          echo "Los dos secretos existen."
